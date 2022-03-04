@@ -25,17 +25,22 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Mono<Payment> findByPaymentId(Integer id) {
+    public Mono<Payment> findByPaymentId(String id) {
         return paymentRepository.findById(id).switchIfEmpty(Mono.empty());
     }
 
     @Override
-    public Flux<Payment> findAllByCreditId(Integer id) {
+    public Flux<Payment> findAll() {
+        return paymentRepository.findAll();
+    }
+
+    @Override
+    public Flux<Payment> findAllByCreditId(String id) {
         return paymentRepository.findAll(Sort.by(String.valueOf(id)));
     }
 
     @Override
-    public Mono<Void> deletePayment(Integer id) {
+    public Mono<Void> deletePayment(String id) {
         return paymentRepository.deleteById(id);
     }
 }

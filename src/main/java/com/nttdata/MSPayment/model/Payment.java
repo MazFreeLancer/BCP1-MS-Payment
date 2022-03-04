@@ -14,9 +14,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document("payment")
 public class Payment {
     @Id
-    Integer id;
-    Integer idCredit;
-    Float amount;
-    String date;
-    PaymentType paymentType;
+    private String id;
+    private String idCredit;
+    private Float amount;
+    private String date;
+    private PaymentType paymentType;
 }

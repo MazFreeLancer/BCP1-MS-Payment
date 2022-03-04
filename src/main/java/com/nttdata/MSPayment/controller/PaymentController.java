@@ -24,15 +24,20 @@ public class PaymentController {
 
     @GetMapping(value = "get/credit/{idCredit}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Flux<Payment> findByCreditId(@PathVariable("idCredit") Integer id){
+    public Flux<Payment> findByCreditId(@PathVariable("idCredit") String id){
         return paymentService.findAllByCreditId(id);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<Mono<Payment>> findById(@PathVariable("id") Integer id){
+    public ResponseEntity<Mono<Payment>> findById(@PathVariable("id") String id){
         Mono<Payment> paymentMono = paymentService.findByPaymentId(id);
         return new ResponseEntity<Mono<Payment>>(paymentMono, paymentMono != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+    }
+    @GetMapping(value = "/getAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @ResponseStatus
+    public Flux<Payment> findAll(){
+        return paymentService.findAll();
     }
 
     @PutMapping("/update")
@@ -43,7 +48,7 @@ public class PaymentController {
 
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<Void> deleteById(@PathVariable("id") Integer id){
+    public Mono<Void> deleteById(@PathVariable("id") String id){
         return paymentService.deletePayment(id);
     }
 }

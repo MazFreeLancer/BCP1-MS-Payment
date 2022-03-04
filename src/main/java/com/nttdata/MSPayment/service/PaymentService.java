@@ -7,7 +7,8 @@ import reactor.core.publisher.Mono;
 public interface PaymentService {
     Mono<Payment> createPayment(Payment p);
     Mono<Payment> updatePayment(Payment p);
-    Mono<Payment> findByPaymentId(Integer id);
-    Flux<Payment> findAllByCreditId(Integer id);
-    Mono<Void> deletePayment(Integer id);
+    Mono<Payment> findByPaymentId(String id);
+    Flux<Payment> findAll();
+    Flux<Payment> findAllByCreditId(String id);
+    Mono<Void> deletePayment(String id);
 }
