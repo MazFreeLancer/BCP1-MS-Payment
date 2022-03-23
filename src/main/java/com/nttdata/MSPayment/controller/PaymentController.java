@@ -1,54 +1,28 @@
 package com.nttdata.MSPayment.controller;
-
-import com.nttdata.MSPayment.model.Payment;
+import com.nttdata.MSPayment.model.Movements;
 import com.nttdata.MSPayment.service.PaymentService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
-@RequestMapping("/payment")
 @RestController
+@RequiredArgsConstructor
+@RequestMapping("/active-payment")
 public class PaymentController {
-    @Autowired
-    private PaymentService paymentService;
 
-    @PostMapping("/create")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Payment> createPayment(@RequestBody Payment p){
-        return paymentService.createPayment(p);
-    }
+    private final PaymentService PaymentService;
 
-    @GetMapping(value = "get/credit/{idCredit}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public Flux<Payment> findByCreditId(@PathVariable("idCredit") String id){
-        return paymentService.findAllByCreditId(id);
+    @PostMapping("/pay/{id}")
+    public Mono<Movements> pay(@PathVariable("id") String idProduct,
+                               @RequestParam Double amount) {
+
+        return PaymentService.payCredit(idProduct, amount);
+
     }
 
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public ResponseEntity<Mono<Payment>> findById(@PathVariable("id") String id){
-        Mono<Payment> paymentMono = paymentService.findByPaymentId(id);
-        return new ResponseEntity<Mono<Payment>>(paymentMono, paymentMono != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
-    }
-    @GetMapping(value = "/getAll", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @ResponseStatus
-    public Flux<Payment> findAll(){
-        return paymentService.findAll();
-    }
-
-    @PutMapping("/update")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public Mono<Payment> updatePayment(@RequestBody Payment p){
-        return paymentService.updatePayment(p);
-    }
-
-    @DeleteMapping("/delete/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public Mono<Void> deleteById(@PathVariable("id") String id){
-        return paymentService.deletePayment(id);
-    }
 }

@@ -1,14 +1,7 @@
 package com.nttdata.MSPayment.service;
 
-import com.nttdata.MSPayment.model.Payment;
-import reactor.core.publisher.Flux;
+import com.nttdata.MSPayment.model.Movements;
 import reactor.core.publisher.Mono;
-
 public interface PaymentService {
-    Mono<Payment> createPayment(Payment p);
-    Mono<Payment> updatePayment(Payment p);
-    Mono<Payment> findByPaymentId(String id);
-    Flux<Payment> findAll();
-    Flux<Payment> findAllByCreditId(String id);
-    Mono<Void> deletePayment(String id);
+    public Mono<Movements> payCredit(String idCredit, Double amount);
 }

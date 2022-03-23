@@ -1,46 +1,55 @@
 package com.nttdata.MSPayment.service;
 
-import com.nttdata.MSPayment.model.Payment;
-import com.nttdata.MSPayment.repository.PaymentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import java.util.Date;
+
+import com.nttdata.MSPayment.model.Credit;
+import com.nttdata.MSPayment.model.Movements;
+import com.nttdata.MSPayment.proxy.PaymentProxy;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @Service
-public class PaymentServiceImpl implements PaymentService {
+@RequiredArgsConstructor
+public class PaymentServiceImpl implements PaymentService{
 
-    @Autowired
-    PaymentRepository paymentRepository;
+    private final PaymentProxy paymentProxy = new PaymentProxy();
 
     @Override
-    public Mono<Payment> createPayment(Payment p) {
-        return paymentRepository.save(p);
+    public Mono<Movements> payCredit(String idCredit, Double amount) {
+
+        return paymentProxy.getCredit(idCredit)
+                .flatMap(resp->payDebt(resp, amount))
+                .flatMap(paymentProxy::updateCredit)
+                .flatMap(resp->saveMovement(idCredit, "credit pay", amount, null));
+
     }
 
-    @Override
-    public Mono<Payment> updatePayment(Payment p) {
-        return paymentRepository.save(p);
+
+    //AVTIVEPAYMENT UTIL METHODS
+    public Mono<Credit> payDebt(Credit credit, Double amount) {
+
+        Double debt = credit.getDebt();
+        if(amount < debt) {
+            credit.setDebt(debt-amount);
+        }else {
+            credit.setDebt(Double.valueOf(0));
+        }
+        return Mono.just(credit);
     }
 
-    @Override
-    public Mono<Payment> findByPaymentId(String id) {
-        return paymentRepository.findById(id).switchIfEmpty(Mono.empty());
-    }
+    public Mono<Movements> saveMovement(String idProduct,
+                                     String type,
+                                     Double amount,
+                                     String idThirdPartyProduct) {
 
-    @Override
-    public Flux<Payment> findAll() {
-        return paymentRepository.findAll();
-    }
+        Movements movement = new Movements();
+        movement.setIdProduct(idProduct);
+        movement.setType(type);
+        movement.setAmount(amount);
+        movement.setIdThirdPartyProduct(idThirdPartyProduct);
+        movement.setDate(new Date());
 
-    @Override
-    public Flux<Payment> findAllByCreditId(String id) {
-        return paymentRepository.findAll(Sort.by(String.valueOf(id)));
-    }
-
-    @Override
-    public Mono<Void> deletePayment(String id) {
-        return paymentRepository.deleteById(id);
+        return paymentProxy.saveMovement(movement);
     }
 }
